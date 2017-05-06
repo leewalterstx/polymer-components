@@ -1,0 +1,78 @@
+<script>
+	jsonBehavior = {
+		toJSONString: function(obj) {
+			return _stringify(obj);
+			
+			function _stringify(obj) {
+				switch (_getType(obj)) {
+					case 'object' : {
+						return _parseObj(obj);
+						break;
+					}
+					case 'array' : {
+						return _parseArray(obj);
+						break;
+					}
+					case 'string' : {
+						return '"' + obj.trim() + '"';
+						break;
+					}
+					default: {
+						return obj;
+						break;
+					}
+				}
+				
+				function _getType(obj) {
+					var sType = typeof obj;
+					if (sType == 'object') {
+						if (obj && obj.slice) {
+							sType = 'array';
+						}
+						else if (obj == null) {
+							sType = 'null'
+						}
+					}
+					
+					return sType;
+				}
+				
+				function _parseArray(arr) {
+					var sReturn = '[';
+					
+					for (var i = 0; i < arr.length; i++) {
+						sReturn += _stringify/*recurse*/(arr[i]) + ',';	
+					}
+					
+					sReturn = sReturn.slice(0, sReturn.length - 1) + ']';
+					
+					return sReturn;
+				}
+				
+				function _parseObj(obj) {
+					var sReturn = '{';
+						
+					for (var key in obj) {
+						val = obj[key];
+						
+						sReturn += '"' + key.trim() + '":' + _stringify/*recurse*/(val) + ',';
+					}
+
+					if (sReturn == '{') {
+						if (obj instanceof Date) {
+							sReturn = obj.toString();
+						}
+						else {
+							sReturn = "{}"
+						}
+					}
+					else {
+						sReturn = sReturn.slice(0, sReturn.length - 1) + '}';
+					}
+					
+					return sReturn;
+				}
+			}
+		}
+	}
+</script>

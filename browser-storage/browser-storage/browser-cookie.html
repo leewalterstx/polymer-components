@@ -1,0 +1,69 @@
+<link rel="import" href="../common-behavior/json-behavior.html">
+
+<dom-module id="browser-cookie">
+<script>
+	Polymer({
+		is: 'browser-cookie',
+		behaviors: [jsonBehavior],
+		properties: {
+			mode: {
+				type: String,
+				value: 'json',
+				notify: true
+			}
+		},
+		setItem: function(key, obj, path, expiration) {
+			if (!path) {
+				path = "/";
+			} 
+			
+			if (!expiration) {
+				expiration = (new Date()).toString();
+			}
+			
+			var sCookie = "";
+			
+			if (this.mode == 'json') {
+				sCookie = this.toJSONString(obj);
+			}
+			else {
+				sCookie = obj.toString();
+			}
+			
+			document.cookie = key + '=' + sCookie + "; expires=" + expiration + "; path=" + path;
+		},
+		getItem: function(key) {
+			var sCookie = document.cookie;
+			
+			var aCookie = sCookie.split(';');
+			
+			for (var i = 0; i < aCookie.length; i++) {
+				var c = aCookie[i];
+				
+				try {
+					var aKeyVal = c.split('=');
+					var k = aKeyVal[0];
+					var v = aKeyVal[1];
+					
+					if (key == k) {
+						if (this.mode == 'json') {
+							return JSON.parse(v);
+						}
+						else {
+							return v;
+						}
+					}
+				}
+				catch (e) {
+					
+				}
+			}
+			
+			return null;
+		},
+		removeItem: function(key) {
+			document.cookie = key + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+		}
+	});
+</script>
+</dom-module>

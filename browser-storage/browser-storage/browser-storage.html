@@ -1,0 +1,86 @@
+<link rel="import" href="../common-behavior/json-behavior.html">
+
+<dom-module id="browser-storage">
+<script>
+	Polymer({
+		is: 'browser-storage',
+		behaviors: [jsonBehavior],
+		properties: {
+			store: {
+				type: String,
+				value: 'local',
+				notify: true
+			},
+			mode: {
+				type: String,
+				value: 'json',
+				notify: true
+			}
+		},
+		setItem: function(key, obj) {
+			var store = this.store == 'local' ? localStorage : sessionStorage;
+			
+			if (this.mode == 'json') {
+				store.setItem(key, this.toJSONString(obj));
+			}
+			else {
+				store.setItem(key, obj.toString());
+			}
+		},
+		getItem: function(key) {
+			var store = this.store == 'local' ? localStorage : sessionStorage;
+			var sObj = "";
+
+			sObj = store.getItem(key);
+			
+			try {
+				if (this.mode == 'json') {
+					return JSON.parse(sObj);
+				}
+				else {
+					return sObj;					
+				}
+			}
+			catch (e) {
+				console.error(e);
+				// Usually happens with dates
+			}
+			
+			return null;
+		},
+		removeItem: function(key) {
+			var store = this.store == 'local' ? localStorage : sessionStorage;
+			
+			store.removeItem(key);
+		},
+		getKeys: function() {
+			var store = this.store == 'local' ? localStorage : sessionStorage;
+			
+			var aKeys = [];
+			
+			for (var k = 0; k < store.length; k++) {
+				aKeys.push(store.key(k));
+			}
+			
+			return aKeys;
+		},
+		getKeyValuePairs: function() {
+			var self = this;
+			var store = this.store == 'local' ? localStorage : sessionStorage;
+			
+			var aKeyVals = [];
+			
+			for (var k = 0; k < store.length; k++) {
+				var thisKey = store.key(k);
+				
+				aKeyVals.push({
+					key: thisKey,
+					value: self.getItem(thisKey)
+				});
+			}
+			
+			return aKeyVals;
+		}
+	});
+</script>
+</dom-module>
